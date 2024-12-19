@@ -1,101 +1,141 @@
-import Image from "next/image";
+"use client";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+import { useSearch } from "./_hooks/useSearch";
+import { ProductData } from "@/models/search";
+import ExpandableCard from "./_component/ExpandableCard";
+import { useReviewSummary } from "./_hooks/useReviewSummary";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [howMany, setHowMany] = useState<number>(3);
+  const [asins, setAsins] = useState<ProductData>({});
+  const [summaryAsins, setSummaryAsins] = useState<ProductData>({});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSearchResponse = (asins: ProductData) => {
+    setAsins({})
+    setSummaryAsins({})
+    setAsins(asins);
+  };
+  const handleSummaryResponse = (asins: ProductData) => {
+    setSummaryAsins(asins)
+  };
+
+  const { mutate, isPending } = useSearch(handleSearchResponse);
+  const { mutate: summaryMutate, isPending: summaryIsPending} = useReviewSummary(handleSummaryResponse)
+
+  const onSearch = () => {
+    mutate({ search_query: searchQuery, how_many: howMany.toString() });
+  };
+  const onReviewSummary = () => {
+    summaryMutate((asins))
+  }
+
+  return (
+    <main className="w-full flex flex-col gap-6">
+      <section className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2 max-w-[450px]">
+          <Label htmlFor="search_query">Product</Label>
+          <Input
+            id="search_query"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="flex flex-col gap-2 max-w-[450px]">
+          <Label htmlFor="how_many">Numbers of Serach</Label>
+          <Input
+            id="how_many"
+            type="number"
+            value={howMany}
+            onChange={(e) => setHowMany(Number(e.target.value))}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </div>
+      </section>
+      <section>
+        <Button className={`${searchQuery && howMany ? "hover:bg-[#ed1c24]" : ""} bg-slate-300 w-[450px] text-lg`} variant="outline" onClick={onSearch} disabled={isPending || !searchQuery || !howMany}>
+          Search
+        </Button>
+      </section>
+      <section className="mt-12">
+      {/* <Button className="w-full" onClick={onReviewSummary} disabled={summaryIsPending}>Create Review Summary!</Button> */}
+        {
+          JSON.stringify(asins) !== "{}" &&
+          <Button variant={'outline'} className="w-full h-12 bg-slate-300 hover:bg-[#ed1c24] text-lg" onClick={onReviewSummary} disabled={summaryIsPending}>Create Review Summary!</Button>
+        }
+        {asins && (
+          <div className="flex flex-col gap-4 mt-6">
+            {Object.entries(asins).map(([asin, product]) => (
+              <Card key={asin} className="product">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">{product.product_name}</CardTitle>
+                  <CardDescription>{product.price}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {
+                    asins && JSON.stringify(summaryAsins) !== "{}" &&
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-2">
+                        <h1 className="text-xl font-bold">Positive Summary</h1>
+                        <div>{summaryAsins[asin].five_star_summary?.summary}</div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <h1 className="text-xl font-bold">Negative Summary</h1>
+                        <div>{summaryAsins[asin].one_star_summary?.summary}</div>
+                      </div>
+                    </div>
+                  }
+                </CardContent>
+                <CardContent>
+                  <Tabs defaultValue="account" className="w-full">
+                    <TabsList className="w-full flex">
+                      <TabsTrigger className="flex-1 font-bold" value="five">5 Star Reviews</TabsTrigger>
+                      <TabsTrigger className="flex-1 font-bold" value="one">1 Star Reviews</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="five">
+                      {product.five_reviews &&
+                        product.five_reviews.map((five_review, i) => (
+                          <ExpandableCard
+                            key={five_review}
+                            content={`${i + 1}. ${five_review}`}
+                          />
+                        ))}
+                    </TabsContent>
+                    <TabsContent value="one">
+                      {product.one_reviews &&
+                        product.one_reviews.map((one_review, i) => (
+                          <ExpandableCard
+                            key={one_review}
+                            content={`${i + 1}. ${one_review}`}
+                          />
+                        ))}
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+      {/* {
+        asins && 
+        <section>
+          <Button variant="outline" onClick={onReview} disabled={isPending}>Get Review Summary</Button>
+        </section>
+      } */}
+      <Toaster />
+    </main>
   );
 }
